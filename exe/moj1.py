@@ -12,8 +12,8 @@ label_1.pack(fill='x',padx=10,pady=10,ipadx=10,ipady=5)
 def clik_1(master):
 	global label_frame
 	label_frame.destroy()
-	label_frame = LabelFrame(root, text="Zmiana kontrachenta na dokumecie.",bd=2)
-	label_frame.pack(fill='both',expand="yes")
+	label_frame = LabelFrame(root, text="Zmiana!! kontrachenta na dokumecie.",bd=2)
+	label_frame.pack(fill='x',expand="yes")
 	label = Label(label_frame, text=master)
 	label.pack()
 	label_fr = LabelFrame(label_frame,text='eee')
@@ -31,9 +31,10 @@ def clik_1(master):
 	p_kwota = Entry(label_fr,text='Kwota dokumentu')
 	p_kwota.grid(row=2,column=1,padx=50,pady=10,sticky=W)
 	
-	but_popraw = Button(label_frame,text='POPRAW')
-	but_popraw.pack()
-
+	but_popraw = Button(label_fr,text='POPRAW')
+	but_popraw.grid(row=2,column=2,padx=5,pady=5,ipadx=5,ipady=5)
+	but_anuluj = Button(label_fr,text='ANULUJ')
+	but_anuluj.grid(row=4,column=2,padx=5,pady=5,ipadx=8,ipady=5)
 
 my_but1 = Button(label_1, text='Popraw kontrachenta na FM' , command=lambda: clik_1('Zmiana na FM lub RM'))
 my_but2 = Button(label_1, text='Popraw kontrachenta na KW' , command=lambda: clik_1('Zmiana na KW lub KP'))
