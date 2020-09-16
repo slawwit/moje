@@ -9,9 +9,13 @@ root.geometry('860x480')
 label_frame = LabelFrame(root)
 label_1 = LabelFrame(root,text='Wpisz numer dokumentu do poprawy.')
 label_1.pack(fill='x',padx=10,pady=10,ipadx=10,ipady=5)
+
+def destr():
+	label_frame.destroy()
+
 def clik_1(master):
 	global label_frame
-	label_frame.destroy()
+	destr()
 	label_frame = LabelFrame(root, text="Zmiana!! kontrachenta na dokumecie.",bd=2)
 	label_frame.pack(fill='x',expand="yes")
 	label = Label(label_frame, text=master)
@@ -33,7 +37,7 @@ def clik_1(master):
 	
 	but_popraw = Button(label_fr,text='POPRAW')
 	but_popraw.grid(row=2,column=2,padx=5,pady=5,ipadx=5,ipady=5)
-	but_anuluj = Button(label_fr,text='ANULUJ')
+	but_anuluj = Button(label_fr,text='ANULUJ',command=destr)
 	but_anuluj.grid(row=4,column=2,padx=5,pady=5,ipadx=8,ipady=5)
 
 my_but1 = Button(label_1, text='Popraw kontrachenta na FM' , command=lambda: clik_1('Zmiana na FM lub RM'))
