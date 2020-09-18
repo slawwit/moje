@@ -7,19 +7,11 @@ import fdb
 # Or, equivalently:
 
 
-root = Tk()
-root.title('tetete')
-root.geometry('860x480')
-
-label_frame = LabelFrame(root)
-label_1 = LabelFrame(root,text='Wpisz numer dokumentu do poprawy.')
-label_1.pack(fill='x',padx=10,pady=10,ipadx=10,ipady=5)
-
 def connekt():
 	global cur
 	global con
 	con = fdb.connect(
-    host='127.0.0.1', database='C:/Hermes/HERM.GDB',
+    host=host, database=database,
     user='sysdba', password='masterkey')
 	cur = con.cursor()
 def select(num):
@@ -88,7 +80,7 @@ def tworz_frame(master,numm):
 	but_anuluj = Button(label_fr,text='ANULUJ',command=destr)
 	but_anuluj.grid(row=4,column=2,padx=5,pady=5,ipadx=8,ipady=5)
 
-
+#dddddd
 def clik_1(master,przy):
 	
 	if przy == 1:
@@ -109,6 +101,57 @@ def clik_1(master,przy):
 			p_nr_kon.insert(0,row[1])
 			p_kwota.insert(0,row[2])
 			con.close()
+
+def zakoncz():
+	connekt()
+	con.close()
+	root.quit()
+
+def lok_zatw():
+	return
+
+def local_base():
+
+	top = Toplevel(root)
+	top.transient([root])
+	top.title('Zmiana lokalizacji bazy.')
+	top.geometry('500x200+320+320')
+	
+	lab_1 = Label(top,text="Host")
+	lab_2 = Label(top,text='Lokalizacja')
+	but_zatw = Button(top,text="Zatwierź",command=lok_zatw)
+	but_anul = Button(top,text="Anuluj",command=lambda: top.destroy())
+	host_p = Entry(top,)
+	lokal_p = Entry(top,width=50)
+	
+	lab_1.grid(row=0,column=0,padx=20,pady=10,sticky=W)
+	lab_2.grid(row=1,column=0,padx=20,pady=10,sticky=W)
+	host_p.grid(row=0,column=1,pady=10,sticky=W)
+	lokal_p.grid(row=1,column=1,pady=10)
+	but_zatw.grid(row=3,column=1,ipadx=9,ipady=7,padx=10,pady=10,sticky=E)
+	but_anul.grid(row=3,column=2,ipadx=9,ipady=7)
+
+
+
+root = Tk()
+root.title('Hmmmmmmmmmmm')
+root.geometry('860x480+120+120')
+
+menu = Menu(root)
+menuplik = Menu(menu)
+menuplik.add_command(label="Lokalzacja bazy",command=local_base)
+menuplik.add_separator()
+menuplik.add_command(label="Koniec",command=zakoncz)
+menu.add_cascade(label="Inne", menu=menuplik)
+root.config(menu=menu)
+
+label_frame = LabelFrame(root)
+label_1 = LabelFrame(root,text='Wpisz numer dokumentu do poprawy.')
+label_1.pack(fill='x',padx=10,pady=10,ipadx=10,ipady=5)
+
+host = '127.0.0.1'
+database = 'D:/kopie/HERM2019.FDB'
+
 
 my_but1 = Button(label_1, text='Popraw kontrachenta na FM' , command=lambda: clik_1('Zmiana na FM lub RM', 1))
 my_but2 = Button(label_1, text='Popraw kontrachenta na KW' , command=lambda: clik_1('Zmiana na KW lub KP', 2))
