@@ -1,5 +1,7 @@
 from tkinter import *
 import fdb
+import sqlite3
+
 
 #ddd
 #con = fdb.connect(dsn='bison:/temp/test.db', user='sysdba', password='pass')
@@ -10,6 +12,7 @@ import fdb
 def connekt():
 	global cur
 	global con
+	
 	con = fdb.connect(
     host=host, database=database,
     user='sysdba', password='masterkey')
@@ -52,7 +55,7 @@ def tworz_frame(master,numm):
 	global p_kwota
 	global nr_dok
 	global cc
-	connekt()
+	#connekt()
 	destr()
 	label_frame = LabelFrame(root, text="Zmiana!! kontrachenta na dokumecie.",bd=2)
 	label_frame.pack(fill='x',expand="yes")
@@ -108,10 +111,30 @@ def zakoncz():
 	root.quit()
 
 def lok_zatw():
-	return
+	global host
+	global database
+	global host_p
+	global lokal_p
+		#host = host_p.get()
+	#database = lokal_p.get()
+	conn =sqlite3.connect('lokalizacja.db')
+	c = conn.cursor()
+#	c.execute("INSERT INTO lolalizacion VALUES (:host, :lokalizacja)",
+#			{
+#				'host': host_p.get(),
+#				'lokalizacja': lokal_p.get()
+#
+#			})
+
+	
+	rec_id = '1'
+	c.execute("""UPDATE lolalizacion SET host = :hoost,	lokalizacja = :localiz WHERE oid = :oid""",{'hoost': host_p.get(),'lokaliz': lokal_p.get(),'oid': rec_id})
+	conn.commit()
+
 
 def local_base():
-
+	global host_p
+	global lokal_p
 	top = Toplevel(root)
 	top.transient([root])
 	top.title('Zmiana lokalizacji bazy.')
@@ -130,13 +153,26 @@ def local_base():
 	lokal_p.grid(row=1,column=1,pady=10)
 	but_zatw.grid(row=3,column=1,ipadx=9,ipady=7,padx=10,pady=10,sticky=E)
 	but_anul.grid(row=3,column=2,ipadx=9,ipady=7)
+	conn =sqlite3.connect('lokalizacja.db')
+	c = conn.cursor()
+	c.execute("SELECT * FROM lolalizacion WHERE oid = 1")
+	records = c.fetchall()
+	for record in records:
+		print(record[0])
+		host_p.insert(0, record[0])
+		lokal_p.insert(0, record[1])
 
 
 
 root = Tk()
 root.title('Hmmmmmmmmmmm')
 root.geometry('860x480+120+120')
-
+conn =sqlite3.connect('lokalizacja.db')
+c = conn.cursor()
+#c.execute("""CREATE TABLE lolalizacion (host text, lokalizacja text)""")
+#conn.commit()
+host = ''
+database = ''
 menu = Menu(root)
 menuplik = Menu(menu)
 menuplik.add_command(label="Lokalzacja bazy",command=local_base)
@@ -148,10 +184,6 @@ root.config(menu=menu)
 label_frame = LabelFrame(root)
 label_1 = LabelFrame(root,text='Wpisz numer dokumentu do poprawy.')
 label_1.pack(fill='x',padx=10,pady=10,ipadx=10,ipady=5)
-
-host = '127.0.0.1'
-database = 'D:/kopie/HERM2019.FDB'
-
 
 my_but1 = Button(label_1, text='Popraw kontrachenta na FM' , command=lambda: clik_1('Zmiana na FM lub RM', 1))
 my_but2 = Button(label_1, text='Popraw kontrachenta na KW' , command=lambda: clik_1('Zmiana na KW lub KP', 2))
