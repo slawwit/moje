@@ -119,18 +119,20 @@ def lok_zatw():
 	#database = lokal_p.get()
 	conn =sqlite3.connect('lokalizacja.db')
 	c = conn.cursor()
-#	c.execute("INSERT INTO lolalizacion VALUES (:host, :lokalizacja)",
-#			{
-#				'host': host_p.get(),
-#				'lokalizacja': lokal_p.get()
-#
-#			})
 
-	
-	rec_id = '1'
-	c.execute("""UPDATE lolalizacion SET host = :hoost,	lokalizacja = :localiz WHERE oid = :oid""",{'hoost': host_p.get(),'lokaliz': lokal_p.get(),'oid': rec_id})
+	rec_id = 1
+	c.execute("""UPDATE lolalizacion SET 
+		host= :host,
+		lokalizacja= :loc
+		WHERE oid = :oid""",
+		{
+		'host': host_p.get(),
+		'loc': lokal_p.get(),
+		'oid': rec_id
+		})
 	conn.commit()
-
+	host = host_p.get()	
+	database = lokal_p.get()
 
 def local_base():
 	global host_p
