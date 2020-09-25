@@ -1,22 +1,22 @@
+
 from tkinter import *
 import fdb
 import sqlite3
-
-
-#ddd
-#con = fdb.connect(dsn='bison:/temp/test.db', user='sysdba', password='pass')
-
-# Or, equivalently:
+from tkinter import messagebox
 
 
 def connekt():
 	global cur
 	global con
-	
-	con = fdb.connect(
-    host=host, database=database,
-    user='sysdba', password='masterkey')
-	cur = con.cursor()
+	try:
+		con = fdb.connect(
+    	host=host, database=database,
+    	user='sysdba', password='masterkey')
+		cur = con.cursor()
+	except fdb.fbcore.DatabaseError as e:
+		messagebox.showwarning("Błąd w połączeniu z bazą",("Wprowadź poprawną ścieżkę lokalizacji bazy!!",e))
+
+
 def select(num):
 	global cc
 	if num == 1:
@@ -31,6 +31,9 @@ def select(num):
 def destr():
 	
 	label_frame.destroy()
+
+def destr2():
+	top.destroy()
 	
 def update(num):
 	global cc
@@ -55,8 +58,8 @@ def tworz_frame(master,numm):
 	global p_kwota
 	global nr_dok
 	global cc
-	#connekt()
 	destr()
+	popup()
 	label_frame = LabelFrame(root, text="Zmiana!! kontrachenta na dokumecie.",bd=2)
 	label_frame.pack(fill='x',expand="yes")
 	label = Label(label_frame, text=master)
@@ -133,10 +136,13 @@ def lok_zatw():
 	conn.commit()
 	host = host_p.get()	
 	database = lokal_p.get()
+	connekt()
+	top.destroy()
 
 def local_base():
 	global host_p
 	global lokal_p
+	global top
 	top = Toplevel(root)
 	top.transient([root])
 	top.title('Zmiana lokalizacji bazy.')
@@ -160,11 +166,11 @@ def local_base():
 	c.execute("SELECT * FROM lolalizacion WHERE oid = 1")
 	records = c.fetchall()
 	for record in records:
-		print(record[0])
 		host_p.insert(0, record[0])
 		lokal_p.insert(0, record[1])
 
-
+def popup():
+	messagebox.showwarning("Zastanów się!!!!","Uwaga możesz wszystko spaprać!!!")
 
 root = Tk()
 root.title('Hmmmmmmmmmmm')
@@ -176,11 +182,11 @@ c = conn.cursor()
 host = ''
 database = ''
 menu = Menu(root)
-menuplik = Menu(menu)
-menuplik.add_command(label="Lokalzacja bazy",command=local_base)
-menuplik.add_separator()
-menuplik.add_command(label="Koniec",command=zakoncz)
-menu.add_cascade(label="Inne", menu=menuplik)
+menuinne = Menu(menu,tearoff=0)
+menuinne.add_command(label="Lokalzacja bazy",command=local_base)
+menuinne.add_separator()
+menuinne.add_command(label="Koniec",command=zakoncz)
+menu.add_cascade(label="Inne", menu=menuinne)
 root.config(menu=menu)
 
 label_frame = LabelFrame(root)
