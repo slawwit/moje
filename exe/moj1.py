@@ -8,11 +8,14 @@ from tkinter import messagebox
 def connekt():
 	global cur
 	global con
+	global con_ok
+	con_ok = ''
 	try:
 		con = fdb.connect(
     	host=host, database=database,
     	user='sysdba', password='masterkey')
 		cur = con.cursor()
+		con_ok = 1
 	except fdb.fbcore.DatabaseError as e:
 		messagebox.showwarning("Błąd w połączeniu z bazą",("Wprowadź poprawną ścieżkę lokalizacji bazy!!",e))
 
@@ -27,6 +30,12 @@ def select(num):
 		SELECT = ("select dokument,kon,winien from mat_wpl where dokument="+"'"+ numer +"'")
 	cur.execute(SELECT)
 	cc = cur.fetchall()
+	con.commit()
+	if cc == []:
+		messagebox.showwarning("Błąd w",("Wpbazy!!"))
+
+	
+	
 
 def destr():
 	
@@ -91,22 +100,29 @@ def clik_1(master,przy):
 	
 	if przy == 1:
 		connekt()
-		select(przy)
-		tworz_frame(master,przy)
-		for row in cc:
-			p_nr_dok.insert(0,row[0])
-			p_nr_kon.insert(0,row[1])
-			p_kwota.insert(0,row[2])
-			con.close()
+		if nr_1.get() == '':
+			popup1()
+		else:
+			select(przy)
+			tworz_frame(master,przy)
+			for row in cc:
+				p_nr_dok.insert(0,row[0])
+				p_nr_kon.insert(0,row[1])
+				p_kwota.insert(0,row[2])
+				con.close()
+
 	if przy == 2:
 		connekt()
-		select(przy)
-		tworz_frame(master,przy)
-		for row in cc:
-			p_nr_dok.insert(0,row[0])
-			p_nr_kon.insert(0,row[1])
-			p_kwota.insert(0,row[2])
-			con.close()
+		if nr_2.get() == '':
+			popup1()
+		else:
+			select(przy)
+			tworz_frame(master,przy)
+			for row in cc:
+				p_nr_dok.insert(0,row[0])
+				p_nr_kon.insert(0,row[1])
+				p_kwota.insert(0,row[2])
+				con.close()
 
 def zakoncz():
 	connekt()
@@ -137,7 +153,9 @@ def lok_zatw():
 	host = host_p.get()	
 	database = lokal_p.get()
 	connekt()
-	top.destroy()
+	if con_ok == 1:
+		top.destroy()
+	
 
 def local_base():
 	global host_p
@@ -169,8 +187,13 @@ def local_base():
 		host_p.insert(0, record[0])
 		lokal_p.insert(0, record[1])
 
+
 def popup():
 	messagebox.showwarning("Zastanów się!!!!","Uwaga możesz wszystko spaprać!!!")
+
+
+def popup1():
+	messagebox.showinfo("Info","Wpisz numer dokumentu!")
 
 root = Tk()
 root.title('Hmmmmmmmmmmm')
@@ -193,15 +216,15 @@ label_frame = LabelFrame(root)
 label_1 = LabelFrame(root,text='Wpisz numer dokumentu do poprawy.')
 label_1.pack(fill='x',padx=10,pady=10,ipadx=10,ipady=5)
 
-my_but1 = Button(label_1, text='Popraw kontrachenta na FM' , command=lambda: clik_1('Zmiana na FM lub RM', 1))
-my_but2 = Button(label_1, text='Popraw kontrachenta na KW' , command=lambda: clik_1('Zmiana na KW lub KP', 2))
+my_but1 = Button(label_1, text='Popraw kontrachenta na FM lub RM' , command=lambda: clik_1('Zmiana na FM lub RM', 1))
+my_but2 = Button(label_1, text='Popraw kontrachenta na KW lub KP' , command=lambda: clik_1('Zmiana na KW lub KP', 2))
 nr_1 = Entry(label_1)
-
 nr_2 = Entry(label_1)
+
 my_but1.grid(row=0,column=0,padx=10,pady=10)
+my_but2.grid(row=1,column=0,padx=10,pady=10)
 nr_1.grid(row=0,column=1)
 nr_2.grid(row=1,column=1)
-my_but2.grid(row=1,column=0,padx=10,pady=10)
 
 
 root.mainloop()
