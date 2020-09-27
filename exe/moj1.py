@@ -3,7 +3,7 @@ from tkinter import *
 import fdb
 import sqlite3
 from tkinter import messagebox
-
+from PIL import ImageTk,Image
 
 def connekt():
 	global cur
@@ -17,7 +17,7 @@ def connekt():
 		cur = con.cursor()
 		con_ok = 1
 	except fdb.fbcore.DatabaseError as e:
-		messagebox.showwarning("Błąd w połączeniu z bazą",("Wprowadź poprawną ścieżkę lokalizacji bazy!!",e))
+		messagebox.showwarning("Błąd w połączeniu z bazą",("Wprowadź poprawną ścieżkę lokalizacji bazy!!\n",e))
 
 
 def select(num):
@@ -27,12 +27,13 @@ def select(num):
 		SELECT = ("select dokument,kon,winien from mat_oew where dokument="+"'"+ numer +"'")
 	if num == 2:
 		numer = nr_2.get()
-		SELECT = ("select dokument,kon,winien from mat_wpl where dokument="+"'"+ numer +"'")
+		SELECT = ("select dokument,kon,winien,ma from mat_wpl where dokument="+"'"+ numer +"'")
 	cur.execute(SELECT)
 	cc = cur.fetchall()
 	con.commit()
 	if cc == []:
-		messagebox.showwarning("Błąd w",("Wpbazy!!"))
+		messagebox.showwarning("Błąd wyszukiwania!!!",("Taki dokument nie istnieje,\nWpisz poprawny numer dokumentu."))
+
 
 	
 	
@@ -40,6 +41,8 @@ def select(num):
 def destr():
 	
 	label_frame.destroy()
+	my_but1.config(state=ACTIVE)
+	my_but2.config(state=ACTIVE)
 
 def destr2():
 	top.destroy()
@@ -55,10 +58,19 @@ def update(num):
 		numer = ("'"+p_nr_dok.get()+"'")
 		kon = p_nr_kon.get()
 		update = ("update mat_wpl set kon="+ kon +"  where dokument=" + numer)
-	
-	cur.execute(update)
-	con.commit()
+	if p_kwota.get() != '0.0':
+		messagebox.showwarning("Niespełniony warunek!!","Musisz najpierw wyzerować dokument!!!")
+	else:
+		try:
+			cur.execute(update)
+		except fdb.fbcore.DatabaseError as e:
+			messagebox.showwarning("Błąd kontrachenta!",("Brak kontrachenta o tym numerze,\nWprowadź numer istniejącego kontrachenta !!\n",e))
+
+
+		con.commit()
 	con.close()
+	destr()
+
 
 def tworz_frame(master,numm):
 	global label_frame
@@ -73,7 +85,7 @@ def tworz_frame(master,numm):
 	label_frame.pack(fill='x',expand="yes")
 	label = Label(label_frame, text=master)
 	label.pack()
-	label_fr = LabelFrame(label_frame,text='eee')
+	label_fr = LabelFrame(label_frame,text='')
 	label_fr.pack(fill='both',expand="yes",padx=150,pady=50)
 	nr_dok = Label(label_fr,text='Numer dokumentu')
 	nr_dok.grid(row=0,padx=50,pady=10,sticky=W)
@@ -94,35 +106,42 @@ def tworz_frame(master,numm):
 	but_popraw.grid(row=2,column=2,padx=5,pady=5,ipadx=5,ipady=5)
 	but_anuluj = Button(label_fr,text='ANULUJ',command=destr)
 	but_anuluj.grid(row=4,column=2,padx=5,pady=5,ipadx=8,ipady=5)
-
+	my_but1.config(state=DISABLED)
+	my_but2.config(state=DISABLED)
 #dddddd
-def clik_1(master,przy):
-	
-	if przy == 1:
-		connekt()
-		if nr_1.get() == '':
-			popup1()
-		else:
-			select(przy)
-			tworz_frame(master,przy)
-			for row in cc:
-				p_nr_dok.insert(0,row[0])
-				p_nr_kon.insert(0,row[1])
-				p_kwota.insert(0,row[2])
-				con.close()
+def clik_1(master,arg):
+	connekt()
+	if con_ok == 1:
+		if arg == 1:
+			if nr_1.get() == '':
+				popup1()
+			else:
+				if_doc(master,arg)
+			
+		if arg == 2:
+			if nr_2.get() == '':
+				popup1()
+			else:
+				if_doc(master,arg)
 
-	if przy == 2:
-		connekt()
-		if nr_2.get() == '':
-			popup1()
-		else:
-			select(przy)
-			tworz_frame(master,przy)
-			for row in cc:
-				p_nr_dok.insert(0,row[0])
-				p_nr_kon.insert(0,row[1])
+def if_doc(master,arg):
+	select(arg)
+	
+	if cc != []:
+		tworz_frame(master,arg)
+		for row in cc:
+			p_nr_dok.insert(0,row[0])
+			p_nr_kon.insert(0,row[1])
+			dd = row[0]
+			ddd = dd[0]+dd[1]
+			if ddd == 'KP':
+				p_kwota.insert(0,row[3])
+			else:
 				p_kwota.insert(0,row[2])
-				con.close()
+			con.close()
+			p_nr_dok.config(state=DISABLED)
+			p_kwota.config(state=DISABLED)
+
 
 def zakoncz():
 	connekt()
@@ -179,31 +198,45 @@ def local_base():
 	lokal_p.grid(row=1,column=1,pady=10)
 	but_zatw.grid(row=3,column=1,ipadx=9,ipady=7,padx=10,pady=10,sticky=E)
 	but_anul.grid(row=3,column=2,ipadx=9,ipady=7)
-	conn =sqlite3.connect('lokalizacja.db')
-	c = conn.cursor()
-	c.execute("SELECT * FROM lolalizacion WHERE oid = 1")
-	records = c.fetchall()
-	for record in records:
-		host_p.insert(0, record[0])
-		lokal_p.insert(0, record[1])
+	con_sqlite(2)
 
 
 def popup():
-	messagebox.showwarning("Zastanów się!!!!","Uwaga możesz wszystko spaprać!!!")
+	messagebox.showwarning("Zastanów się!!!!","Uwaga bądź ostrożny !!!")
 
 
 def popup1():
 	messagebox.showinfo("Info","Wpisz numer dokumentu!")
 
+
+def con_sqlite(arg1):
+	global host
+	global database
+	conn =sqlite3.connect('lokalizacja.db')
+	c = conn.cursor()
+	#c.execute("""CREATE TABLE lolalizacion (host text, lokalizacja text)""")
+	#conn.commit()
+	c.execute("SELECT * FROM lolalizacion WHERE oid = 1")
+	records = c.fetchall()
+	if arg1 == 1:
+		for record in records:
+			host = record[0]
+			database = record[1]
+	if arg1 == 2:
+		for record in records:
+			host_p.insert(0, record[0])
+			lokal_p.insert(0, record[1])
+
+
+
 root = Tk()
-root.title('Hmmmmmmmmmmm')
+root.title('Watkemik')
 root.geometry('860x480+120+120')
-conn =sqlite3.connect('lokalizacja.db')
-c = conn.cursor()
-#c.execute("""CREATE TABLE lolalizacion (host text, lokalizacja text)""")
-#conn.commit()
+root.iconbitmap('watkem.ico')
+
 host = ''
 database = ''
+
 menu = Menu(root)
 menuinne = Menu(menu,tearoff=0)
 menuinne.add_command(label="Lokalzacja bazy",command=local_base)
@@ -226,5 +259,6 @@ my_but2.grid(row=1,column=0,padx=10,pady=10)
 nr_1.grid(row=0,column=1)
 nr_2.grid(row=1,column=1)
 
+con_sqlite(1)
 
 root.mainloop()
